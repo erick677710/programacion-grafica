@@ -14,17 +14,101 @@ public class Objeto : IDisposable
     private int _shaderProgram;
     private int _mvpLocation;
 
-    // Constructor simple (sin subobjetos)
-    public Objeto(float x, float y, float z, List<float> vertices)
-        : this(x, y, z, vertices, null) { }
+    public List<float> VerticeReubicado(float x, float y, float z, List<float> verticeOriginal)
+    {
+        List<float> resultado = new List<float>(verticeOriginal.Count);
 
-    // Constructor completo (con subobjetos)
+        for (int i = 0; i < verticeOriginal.Count; i++)
+        {
+            int coord = i % 6; // 0=x, 1=y, 2=z, 3=r, 4=g, 5=b
+
+            switch (coord)
+            {
+                case 0:
+                    resultado.Add(verticeOriginal[i] + x); // x
+                    break;
+                case 1:
+                    resultado.Add(verticeOriginal[i] + y); // y
+                    break;
+                case 2:
+                    resultado.Add(verticeOriginal[i] + z); // z
+                    break;
+                default:
+                    resultado.Add(verticeOriginal[i]);     // r, g, b se copian tal cual
+                    break;
+            }
+            
+        }
+        return resultado;
+    }
+    // Constructor de las partes
+    public Objeto(float x, float y, float z, List<float> vertices)
+     {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.vertice = VerticeReubicado(x,y,z,vertices);
+        // Inicializar OpenGL
+        _vao = GL.GenVertexArray();
+        GL.BindVertexArray(_vao);
+
+        _vbo = GL.GenBuffer();
+        GL.BindBuffer(BufferTarget.ArrayBuffer, _vbo);
+        GL.BufferData(BufferTarget.ArrayBuffer, vertice.Count * sizeof(float), vertice.ToArray(), BufferUsageHint.StaticDraw);
+
+        // Shaders
+        string vertexShaderSource = @"
+        #version 330 core
+        layout(location = 0) in vec3 aPosition;
+        layout(location = 1) in vec3 aColor;
+        uniform mat4 uMVP;
+        out vec3 vColor;
+        void main()
+        {
+            gl_Position = uMVP * vec4(aPosition, 1.0);
+            vColor = aColor;
+        }";
+
+        string fragmentShaderSource = @"
+        #version 330 core
+        in vec3 vColor;
+        out vec4 FragColor;
+        void main()
+        {
+            FragColor = vec4(vColor, 1.0);
+        }";
+
+        int vertexShader = GL.CreateShader(ShaderType.VertexShader);
+        GL.ShaderSource(vertexShader, vertexShaderSource);
+        GL.CompileShader(vertexShader);
+
+        int fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
+        GL.ShaderSource(fragmentShader, fragmentShaderSource);
+        GL.CompileShader(fragmentShader);
+
+        _shaderProgram = GL.CreateProgram();
+        GL.AttachShader(_shaderProgram, vertexShader);
+        GL.AttachShader(_shaderProgram, fragmentShader);
+        GL.LinkProgram(_shaderProgram);
+
+        GL.DeleteShader(vertexShader);
+        GL.DeleteShader(fragmentShader);
+
+        GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 0);
+        GL.EnableVertexAttribArray(0);
+        GL.VertexAttribPointer(1, 3, VertexAttribPointerType.Float, false, 6 * sizeof(float), 3 * sizeof(float));
+        GL.EnableVertexAttribArray(1);
+
+        _mvpLocation = GL.GetUniformLocation(_shaderProgram, "uMVP");
+    }
+
+    // Constructor del objeto completo
     public Objeto(float x, float y, float z, List<float> vertices, List<Objeto> partes)
     {
         this.x = x;
         this.y = y;
         this.z = z;
-
+        // si parates = null usa una lsita vacia
         this.partes = partes ?? new List<Objeto>();
 
         // Vertices del objeto + vertices de partes
@@ -36,7 +120,7 @@ public class Objeto : IDisposable
                 vertice.AddRange(parte.vertice);
             }
         }
-
+        vertice = VerticeReubicado(x, y, z, vertice);
         // Inicializar OpenGL
         _vao = GL.GenVertexArray();
         GL.BindVertexArray(_vao);
