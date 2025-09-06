@@ -6,7 +6,27 @@ using System.Threading.Tasks;
 
 namespace ConsoleApp1
 {
-    /*    
+    /* 
+           public float[] VerticePersonalizado(float[] vertices, float x, float y, float z)
+        {
+
+            
+            for (int i = 0; i < vertices.Length; i++)
+            {
+                int coord = i % 6; // 0=x, 1=y, 2=z, 3=r, 4=g, 5=b
+
+                switch (coord)
+                {
+                    case 0: vertices[i] += x; break; // x
+                    case 1: vertices[i] += y; break; // y
+                    case 2: vertices[i] += z; break; // z
+                }
+                //vertices.SetValue(i,5);
+            }
+            return vertices;
+        } 
+      
+   
         class Monitor1
     {
         private int _vao;
