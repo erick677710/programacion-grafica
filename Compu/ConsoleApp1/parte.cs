@@ -12,7 +12,7 @@ class Parte
     // Lista de caras que forman esta parte
     public List<Cara> ListaCaras { get; set; }
 
-    // Constructor vacío (para deserializar)
+    // Constructor vacío (para recibit el json)
     public Parte()
     {
         ListaCaras = new List<Cara>();
@@ -20,7 +20,7 @@ class Parte
     public void carasperosnalizadas(float x, float y, float z) {
         for (int i = 0; i < ListaCaras.Count; i++)
         {
-            ListaCaras[i].verticesPersonalizadosvoid(x, y, z);
+            //ListaCaras[i].verticesPersonalizadosvoid(x, y, z);
         }
     }
     // Constructor normal
@@ -34,7 +34,7 @@ class Parte
         InitGL();
     }
 
-    // Inicializar OpenGL para todas las caras
+    // la magia de open gl
     public void InitGL()
     {
         foreach (var cara in ListaCaras)
@@ -51,7 +51,18 @@ class Parte
             cara.Draw(mvp);
         }
     }
-
+    public void RotarX(float X)
+    {
+        foreach (Cara cara in ListaCaras)
+        {
+            cara.RotarX(X);
+        }
+    }
+    public void RotarXUno(int n,float X)
+    {
+        ListaCaras[n].RotarX(X);
+        
+    }
     // Liberar memoria
     public void Dispose()
     {

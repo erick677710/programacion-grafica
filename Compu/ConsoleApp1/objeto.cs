@@ -20,7 +20,7 @@ class Objeto
             ListaPartes[i].carasperosnalizadas(x, y, z);
         }
     }
-    // Constructor vacío (para deserializar)
+    // Constructor vacío (para recibit el json)
     public Objeto()
     {
         ListaPartes = new List<Parte>();
@@ -37,7 +37,7 @@ class Objeto
         InitGL();
     }
 
-    // Inicializar OpenGL para todas las caras
+    // la magia de open gl
     public void InitGL()
     {
         foreach (Parte Parte in ListaPartes)
@@ -46,7 +46,7 @@ class Objeto
         }
     }
 
-    // Dibujar la Objeto (dibuja todas sus caras)
+    // Dibujar la Objeto (dibuja todas sus partes)
     public void Draw(Matrix4 mvp)
     {
         foreach (Parte Parte in ListaPartes)
@@ -55,6 +55,23 @@ class Objeto
         }
     }
 
+    public void RotarX(float X)
+    {
+        foreach (Parte Parte in ListaPartes)
+        {
+            Parte.RotarX(X);
+        }
+    }
+    public void RotarXUno(int n, float X)
+    {
+        ListaPartes[n].RotarX(X);
+
+    }
+    public void RotarXUnoUno(int n, float X)
+    {
+        ListaPartes[n].RotarXUno(n,X);
+
+    }
     // Liberar memoria
     public void Dispose()
     {

@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class Cara
 {
+
+
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
@@ -14,6 +16,7 @@ public class Cara
     private int _vbo;
     private int _shaderProgram;
     private int _mvpLocation;
+    public Matrix4 Transform { get; set; } = Matrix4.Identity;
 
     public void verticesPersonalizadosvoid(float x, float y, float z)
     {
@@ -64,7 +67,7 @@ public class Cara
         }
         return resultado;
     }
-    // Constructor vacío (para deserializar)
+    // Constructor vacío (para recibit el json)
     public Cara()
     {
         Vertices = new List<float>();
@@ -143,10 +146,14 @@ public class Cara
         _mvpLocation = GL.GetUniformLocation(_shaderProgram, "uMVP");
     }
 
-    // Dibujar la cara
-    public void Draw(Matrix4 mvp)
+    // Dibujar usando la matriz interna Transform  , Matrix4 projection
+    public void Draw(Matrix4 view)
     {
         GL.UseProgram(_shaderProgram);
+
+        // MVP correcto para cada cara
+        Matrix4 mvp = Transform * view * Matrix4.Identity;
+
         GL.UniformMatrix4(_mvpLocation, false, ref mvp);
 
         GL.BindVertexArray(_vao);
@@ -159,5 +166,30 @@ public class Cara
         GL.DeleteBuffer(_vbo);
         GL.DeleteVertexArray(_vao);
         GL.DeleteProgram(_shaderProgram);
+    }
+
+    public void Trasladar(float x, float y, float z)
+    {
+        Transform *= Matrix4.CreateTranslation(x, y, z);
+    }
+
+    public void RotarX(float angleRadians)
+    {
+        Transform *= Matrix4.CreateRotationX(angleRadians);
+    }
+
+    public void RotarY(float angleRadians)
+    {
+        Transform *= Matrix4.CreateRotationY(angleRadians);
+    }
+
+    public void RotarZ(float angleRadians)
+    {
+        Transform *= Matrix4.CreateRotationZ(angleRadians);
+    }
+
+    public void Escalar(float factor)
+    {
+        Transform *= Matrix4.CreateScale(factor);
     }
 }

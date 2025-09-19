@@ -7,17 +7,14 @@ using System.IO;
 using OpenTK.Compute.OpenCL;
 
 public class CubeWindow : GameWindow
-{
-    /*private Objeto _teclado;
-    private Objeto _teclado2;
-    private Objeto _monitor;
-    private Objeto _cpu;
-    private Objeto _pc;*/
+{   
     private Cara _cara;
     private Cara _cara1;
     private Cara _cara2;
     private Cara _cara3;
     private Cara _cara4;
+
+
     private Matrix4 _projection;
     private Matrix4 _view;
     private float _rotationX = 0f;
@@ -25,6 +22,7 @@ public class CubeWindow : GameWindow
     private float _rotationZ = 0f;
     private float _posX = 0f, _posY = 0f, _posZ = 0f;
     private float _scale = 1f;
+    //private List<float> _escala = new List<float>();
     private bool _reflectionX = false;
 
     private Parte parteObj;
@@ -249,11 +247,11 @@ public class CubeWindow : GameWindow
         List<Cara> objeto2 = new List<Cara>();
         List<Parte> ListaParte = new List<Parte>();
         _cara = new Cara(-0.5f,0f,0.0f, cubo);
-        _cara1 = new Cara(0.5f, -0.5f, 0.5f, monitor);
+        _cara1 = new Cara(0f, 0.5f, 0f, monitor);
         _cara2 = new Cara();
 
 
-        _cara3 = new Cara(0.5f, 0.5f, 0.5f, teclado);
+        _cara3 = new Cara(0f, 0f, 0f, teclado);
         _cara4 = new Cara(0f, 0f, 0f, cpu);
 
 
@@ -264,7 +262,7 @@ public class CubeWindow : GameWindow
         objeto2.Add(_cara4);
         objeto2.Add(_cara3);
 
-        parteObj = new Parte(0f, 0f, 0.5f, objeto1);
+        parteObj = new Parte(0f, 0f, 0f, objeto1);
         parteObj1 = new Parte(0f, 0f, 0f, objeto2);
         //pala = new Parte();
         pala = parteObj;
@@ -273,8 +271,8 @@ public class CubeWindow : GameWindow
 
 
         ListaParte.Add(parteObj);
-        //ListaParte.Add(parteObj1);
-        prueba = new Objeto(0f,2f,0f, ListaParte);
+        ListaParte.Add(parteObj1);
+        prueba = new Objeto(0f,0f,0f, ListaParte);
         // Crear objetos
         //string json = JsonSerializer.Serialize(_cara, new JsonSerializerOptions { WriteIndented = true });
 
@@ -313,25 +311,26 @@ public class CubeWindow : GameWindow
 
         var input = KeyboardState;
 
-        // Rotación en X (arriba/abajo)
-        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Up))
-            _rotationX += (float)args.Time;
-        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Down))
-            _rotationX -= (float)args.Time;
-
-        // Rotación en Y (izquierda/derecha)
+        // Rotación en X (izquierda/derecha)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Right))
             _rotationY += (float)args.Time;
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Left))
             _rotationY -= (float)args.Time;
 
-        // Rotación en Z (teclas Q y E por ejemplo)
+        // Rotación en Y (arriba/abajo)
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Up))
+            _rotationX += (float)args.Time;
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Down))
+            _rotationX -= (float)args.Time;
+
+        // Rotación en Z (Q/E)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q))
             _rotationZ += (float)args.Time;
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.E))
             _rotationZ -= (float)args.Time;
 
-        // --- Traslación (mover con WASD) ---
+
+        // trasalacion
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.W))
             _posY += 0.5f * (float)args.Time;
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.S))
@@ -343,18 +342,35 @@ public class CubeWindow : GameWindow
 
         // --- Escalado ---
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.KeyPadAdd) ||
-            input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Equal)) // tecla +
+            input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Equal)) // +
             _scale += 0.5f * (float)args.Time;
 
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.KeyPadSubtract) ||
-            input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Minus)) // tecla -
+            input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Minus)) // -
             _scale -= 0.5f * (float)args.Time;
 
-        // --- Reflejo en X ---
+        // reflejo
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.R))
             _reflectionX = true;
         else
             _reflectionX = false;
+
+
+
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.V))
+            prueba.RotarX(0.001f);
+
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.C))
+            prueba.RotarXUno(1,0.001f);
+
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.X ))
+            prueba.RotarXUnoUno(1, 0.001f);
+        /*_cara.Trasladar(0.001f, 0f, 0f);
+       _cara1.RotarX(0.001f);
+       _cara1.RotarY(0.001f);
+       _cara1.RotarZ(0.001f);*/
+
+
     }
 
     protected override void OnRenderFrame(FrameEventArgs args)
@@ -366,23 +382,33 @@ public class CubeWindow : GameWindow
         Matrix4.CreateRotationX(_rotationX) *
         Matrix4.CreateRotationY(_rotationY) *
         Matrix4.CreateRotationZ(_rotationZ)*
-        Matrix4.CreateScale(_reflectionX ? -_scale : _scale, _scale, _scale) * // Escala + reflejo
-        Matrix4.CreateRotationX(_rotationX) *
-        Matrix4.CreateRotationY(_rotationY) *
+        Matrix4.CreateScale(_reflectionX ? -_scale : _scale, _scale, _scale) *
         Matrix4.CreateTranslation(_posX, _posY, _posZ);
         ;
 
         Matrix4 mvp = Matrix4.CreateTranslation(0f, 0f, 0f) * model * _view * _projection;
 
-        /*_cara.Draw(mvp);
-        _cara1.Draw(mvp);
-        _cara2.Draw(mvp);*/
+
+
+        Matrix4 model1 = _cara.Transform;      // matriz de la cara
+        Matrix4 mvp1 = model * _view * _projection;
+        //_cara.Draw(mvp1);
+        Matrix4 model2 = _cara.Transform;      // matriz de la cara
+        Matrix4 mvp2 = model * _view * _projection;
+        //_cara1.Draw(mvp2);*/
+
+
+        /*parteObj.InitGL();
+        parteObj.Draw(mvp);*/
 
         /*pala.InitGL();
         pala.Draw(mvp);*/
 
+
         prueba.InitGL();
         prueba.Draw(mvp);
+        /*objpala.InitGL();
+        objpala.Draw(mvp);*/
         SwapBuffers();
     }
 
@@ -394,6 +420,7 @@ public class CubeWindow : GameWindow
         _cara1.Dispose();
         _cara2.Dispose();
         objpala.Dispose();
+        prueba.Dispose();
         pala.Dispose();
     }
 }
