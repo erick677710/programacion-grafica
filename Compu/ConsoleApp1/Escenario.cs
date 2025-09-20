@@ -4,80 +4,40 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-class Parte
+class Escenario
 {
     public float X { get; set; }
     public float Y { get; set; }
     public float Z { get; set; }
 
-    // Lista de caras que forman esta parte
-    public List<Cara> ListaCaras { get; set; }
-    [JsonIgnore]
+    // Lista de caras que forman esta Escenario
+    public List<Objeto> ListaObjetos { get; set; }
+    
     public Matrix4 ModeloDeseoso { get; set; } = Matrix4.Identity;
-    [JsonIgnore]
     private Vector3 _rotacion = Vector3.Zero;
-    [JsonIgnore]
     private Vector3 _posicion = Vector3.Zero;
-    [JsonIgnore]
     private Vector3 _escala = new Vector3(1f, 1f, 1f);
+    public void EscenariosPersonalizados(float x, float y, float z)
+    {
+        for (int i = 0; i < ListaObjetos.Count; i++)
+        {
+            //ListaObjetos[i].carasperosnalizadas(x, y, z);
+        }
+    }
     // Constructor vacío (para recibit el json)
-    public serializadorParte GetSerializable()
+    public Escenario()
     {
-        var data = new serializadorParte
-        {
-            PosX = _posicion.X,
-            PosY = _posicion.Y,
-            PosZ = _posicion.Z
-        };
-        foreach (var cara in ListaCaras)
-            data.ListaCaras.Add(cara.GetSerializable());
-        return data;
+        ListaObjetos = new List<Objeto>();
     }
 
-    public void LoadFromSerializable(serializadorParte data)
-    {
-        _posicion = new Vector3(data.PosX, data.PosY, data.PosZ);
-        ListaCaras.Clear();
-        foreach (var caraData in data.ListaCaras)
-        {
-            var cara = new Cara();
-            cara.LoadFromSerializable(caraData);
-            ListaCaras.Add(cara);
-        }
-    }
-
-
-    public Vector3 PosicionJson
-    {
-        get => _posicion;
-        set { _posicion = value; ActualizarModelo(); }
-    }
-
-    public Vector3 RotacionJson
-    {
-        get => _rotacion;
-        set { _rotacion = value; ActualizarModelo(); }
-    }
-
-    public float EscalaJson { get; set; } = 1f;
-    public Parte()
-    {
-        ListaCaras = new List<Cara>();
-    }
-    public void carasperosnalizadas(float x, float y, float z) {
-        for (int i = 0; i < ListaCaras.Count; i++)
-        {
-            //ListaCaras[i].verticesPersonalizadosvoid(x, y, z);
-        }
-    }
     // Constructor normal
-    public Parte(float x, float y, float z, List<Cara> caras)
+    public Escenario(float x, float y, float z, List<Objeto> caras)
     {
         X = x;
         Y = y;
         Z = z;
-        ListaCaras = caras ?? new List<Cara>();
-        carasperosnalizadas(x, y, z);
+        ListaObjetos = caras ?? new List<Objeto>();
+        EscenariosPersonalizados(x, y, z);
         ModeloDeseoso *= Matrix4.CreateTranslation(x, y, z);
         InitGL();
     }
@@ -85,36 +45,41 @@ class Parte
     // la magia de open gl
     public void InitGL()
     {
-        foreach (var cara in ListaCaras)
+        foreach (Objeto Objeto in ListaObjetos)
         {
-            cara.InitGL();
+            Objeto.InitGL();
         }
     }
 
-    // Dibujar la parte (dibuja todas sus caras)
+    // Dibujar la Escenario (dibuja todas sus Objetos)
     public void Draw(Matrix4 mvp)
     {
-        foreach (Cara cara in ListaCaras)
+        foreach (Objeto Objeto in ListaObjetos)
         {
-            cara.Draw(ModeloDeseoso * mvp);
+            Objeto.Draw(ModeloDeseoso * mvp);
         }
     }
+
     private void ActualizarModelo()
     {
+        // Trasladar al origen local (si quieres rotar sobre su centro)
         Matrix4 traslacionOrigen = Matrix4.CreateTranslation(-X, -Y, -Z);
 
+        // Rotaciones
         Matrix4 rotaciones =
             Matrix4.CreateRotationX(_rotacion.X) *
             Matrix4.CreateRotationY(_rotacion.Y) *
             Matrix4.CreateRotationZ(_rotacion.Z);
 
+        // Trasladar a la posición final
         Matrix4 traslacionFinal = Matrix4.CreateTranslation(_posicion);
 
-        Matrix4 escala = Matrix4.CreateScale(_escala);
+        traslacionFinal = traslacionFinal * Matrix4.CreateTranslation(_posicion);
+        //traslacionOrigen *
 
-        ModeloDeseoso = traslacionOrigen * rotaciones * escala * traslacionFinal;
+        Matrix4 escalado = Matrix4.CreateScale(_escala);
+        ModeloDeseoso = traslacionOrigen * rotaciones * escalado * traslacionFinal;
     }
-
     public void Rotar(float x, float y, float z)
     {
         _rotacion += new Vector3(x, y, z);
@@ -126,6 +91,7 @@ class Parte
         _posicion += new Vector3(x, y, z);
         ActualizarModelo();
     }
+
 
     public void Escalar(float x, float y, float z)
     {
@@ -153,13 +119,13 @@ class Parte
         _escala.Z *= -1f;
         ActualizarModelo();
     }
+    // Liberar memoria
     public void Dispose()
     {
-        foreach (Cara cara in ListaCaras)
+        foreach (Objeto Objeto in ListaObjetos)
         {
-            cara.Dispose();
+            Objeto.Dispose();
         }
     }
 }
-
 

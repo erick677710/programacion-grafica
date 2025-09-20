@@ -247,7 +247,7 @@ public class CubeWindow : GameWindow
         List<Cara> objeto2 = new List<Cara>();
         List<Parte> ListaParte = new List<Parte>();
         _cara = new Cara(-0.5f,0f,0.0f, cubo);
-        _cara1 = new Cara(0f, 0.5f, 0f, monitor);
+        _cara1 = new Cara(0.5f, .05f, 0.5f, monitor);
         _cara2 = new Cara();
 
 
@@ -292,9 +292,36 @@ public class CubeWindow : GameWindow
         _cara2 = JsonSerializer.Deserialize<Cara>(jsonleido);
         Console.WriteLine(json);*/
 
+        /*
+        string json = JsonSerializer.Serialize(objData, new JsonSerializerOptions { WriteIndented = true });
 
+        // Deserializar
+        serializadorObjeto cargado = JsonSerializer.Deserialize<serializadorObjeto>(json);
+        var nuevoObjeto = new Objeto();
+        nuevoObjeto.LoadFromSerializable(cargado);*/
+
+
+        serializadorObjeto objData = prueba.GetSerializable();
         //string json = JsonSerializer.Serialize(prueba);
         //File.WriteAllText(@"C:\programacion grafica\programacion-grafica\Compu\obj.json", json);
+
+        
+
+        // convertirlo a la clase serializable
+        serializadorObjeto data = prueba.GetSerializable();
+
+        // opciones de JSON (para que quede bonito)
+        var options = new JsonSerializerOptions
+        {
+            WriteIndented = true
+        };
+
+        // guardar en un archivo
+        string json = JsonSerializer.Serialize(data, options);
+        File.WriteAllText(@"C:\programacion grafica\programacion-grafica\Compu\obj.json", json);
+
+
+        //string json = JsonSerializer.Serialize(objData, new JsonSerializerOptions { WriteIndented = true });
         string jsonleido = File.ReadAllText(@"C:\programacion grafica\programacion-grafica\Compu\obj.json");
 
         objpala = JsonSerializer.Deserialize<Objeto>(jsonleido);
@@ -313,63 +340,62 @@ public class CubeWindow : GameWindow
 
         // Rotación en X (izquierda/derecha)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Right))
-            _rotationY += (float)args.Time;
+            objpala.Rotar(0.001f, 0f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Left))
-            _rotationY -= (float)args.Time;
+            objpala.Rotar(-0.001f, 0f, 0f);
 
         // Rotación en Y (arriba/abajo)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Up))
-            _rotationX += (float)args.Time;
+            objpala.Rotar(0f, 0.001f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Down))
-            _rotationX -= (float)args.Time;
+            objpala.Rotar(0f, -0.001f, 0f); ;
 
         // Rotación en Z (Q/E)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q))
-            _rotationZ += (float)args.Time;
+            objpala.Rotar(0f, 0f, 0.001f); ;
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.E))
-            _rotationZ -= (float)args.Time;
+            objpala.Rotar(0f, 0f, -0.001f);
 
 
         // trasalacion
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.W))
-            _posY += 0.5f * (float)args.Time;
+            objpala.Trasladar(0f, 0.001f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.S))
-            _posY -= 0.5f * (float)args.Time;
+            objpala.Trasladar(0f, -0.001f, 0f); ;
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.A))
-            _posX -= 0.5f * (float)args.Time;
+            objpala.Trasladar(0.001f, 0f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.D))
-            _posX += 0.5f * (float)args.Time;
+            objpala.Trasladar(-0.001f, 0f, 0f);
 
         // --- Escalado ---
-        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.KeyPadAdd) ||
-            input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Equal)) // +
-            _scale += 0.5f * (float)args.Time;
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.T))
+            objpala.Escalar(0.001f, 0.001f, 0.001f);
 
-        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.KeyPadSubtract) ||
-            input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Minus)) // -
-            _scale -= 0.5f * (float)args.Time;
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Y)) 
+            objpala.Escalar(-0.001f, -0.001f, -0.001f);
 
         // reflejo
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.R))
-            _reflectionX = true;
-        else
-            _reflectionX = false;
+            objpala.ReflejarX();
+       
 
 
 
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.V))
-            prueba.RotarX(0.001f);
+            prueba.Rotar(0.001f,0f,0f);
 
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.C))
-            prueba.RotarXUno(1,0.001f);
+            prueba.ListaPartes[0].Rotar(0.001f, 0f, 0f);
+        //prueba.RotarXUno(1,0.001f);
 
-        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.X ))
-            prueba.RotarXUnoUno(1, 0.001f);
-        /*_cara.Trasladar(0.001f, 0f, 0f);
-       _cara1.RotarX(0.001f);
-       _cara1.RotarY(0.001f);
-       _cara1.RotarZ(0.001f);*/
-
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.X))
+            objpala.ListaPartes[0].ListaCaras[1].Rotar(0f, 0.001f, 0f);
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.F))
+            objpala.Rotar(0.00f, 0f, 0.001f);
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.G))
+            objpala.Rotar(0.00f, 0.001f, 0f);
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
+            objpala.ListaPartes[0].ListaCaras[1].Escalar(0.01f,0f,0f);
 
     }
 
@@ -378,24 +404,12 @@ public class CubeWindow : GameWindow
         base.OnRenderFrame(args);
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-        Matrix4 model =
-        Matrix4.CreateRotationX(_rotationX) *
-        Matrix4.CreateRotationY(_rotationY) *
-        Matrix4.CreateRotationZ(_rotationZ)*
-        Matrix4.CreateScale(_reflectionX ? -_scale : _scale, _scale, _scale) *
-        Matrix4.CreateTranslation(_posX, _posY, _posZ);
-        ;
+       
 
-        Matrix4 mvp = Matrix4.CreateTranslation(0f, 0f, 0f) * model * _view * _projection;
+        Matrix4 mvp =  _view * _projection;
 
 
 
-        Matrix4 model1 = _cara.Transform;      // matriz de la cara
-        Matrix4 mvp1 = model * _view * _projection;
-        //_cara.Draw(mvp1);
-        Matrix4 model2 = _cara.Transform;      // matriz de la cara
-        Matrix4 mvp2 = model * _view * _projection;
-        //_cara1.Draw(mvp2);*/
 
 
         /*parteObj.InitGL();
@@ -405,8 +419,8 @@ public class CubeWindow : GameWindow
         pala.Draw(mvp);*/
 
 
-        prueba.InitGL();
-        prueba.Draw(mvp);
+        objpala.InitGL();
+        objpala.Draw(mvp);
         /*objpala.InitGL();
         objpala.Draw(mvp);*/
         SwapBuffers();
