@@ -261,8 +261,8 @@ public class CubeWindow : GameWindow
 
         objeto2.Add(_cara4);
         objeto2.Add(_cara3);
-
-        parteObj = new Parte(0f, 0f, 0f, objeto1);
+        //objeto2.Add(_cara);
+        parteObj = new Parte(0.5f, 0f, 0f, objeto1);
         parteObj1 = new Parte(0f, 0f, 0f, objeto2);
         //pala = new Parte();
         pala = parteObj;
@@ -301,14 +301,14 @@ public class CubeWindow : GameWindow
         nuevoObjeto.LoadFromSerializable(cargado);*/
 
 
-        serializadorObjeto objData = prueba.GetSerializable();
+        //serializadorObjeto objData = prueba.GetSerializable();
         //string json = JsonSerializer.Serialize(prueba);
         //File.WriteAllText(@"C:\programacion grafica\programacion-grafica\Compu\obj.json", json);
 
         
 
         // convertirlo a la clase serializable
-        serializadorObjeto data = prueba.GetSerializable();
+       
 
         // opciones de JSON (para que quede bonito)
         var options = new JsonSerializerOptions
@@ -317,7 +317,7 @@ public class CubeWindow : GameWindow
         };
 
         // guardar en un archivo
-        string json = JsonSerializer.Serialize(data, options);
+        string json = JsonSerializer.Serialize(prueba);
         File.WriteAllText(@"C:\programacion grafica\programacion-grafica\Compu\obj.json", json);
 
 
@@ -326,8 +326,17 @@ public class CubeWindow : GameWindow
 
         objpala = JsonSerializer.Deserialize<Objeto>(jsonleido);
         //Console.WriteLine(json);
+        Console.WriteLine(prueba.ListaPartes[0].ListaCaras[1].X);
+        Console.WriteLine(prueba.ListaPartes[0].ListaCaras[1].Y);
+        Console.WriteLine(prueba.ListaPartes[0].ListaCaras[1].Z);
+
+        Console.WriteLine(objpala.ListaPartes[0].ListaCaras[1].X);
+        Console.WriteLine(objpala.ListaPartes[0].ListaCaras[1].Y);
+        Console.WriteLine(objpala.ListaPartes[0].ListaCaras[1].Z);
 
 
+
+        objpala.Actualizar();
         _projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(60f), Size.X / (float)Size.Y, 0.1f, 100f);
         _view = Matrix4.LookAt(new Vector3(1.5f, 1.5f, 3f), Vector3.Zero, Vector3.UnitY);
     }
@@ -340,48 +349,48 @@ public class CubeWindow : GameWindow
 
         // Rotación en X (izquierda/derecha)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Right))
-            objpala.Rotar(0.001f, 0f, 0f);
+            objpala.ListaPartes[0].ListaCaras[1].Rotar(0.001f, 0f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Left))
-            objpala.Rotar(-0.001f, 0f, 0f);
+            objpala.ListaPartes[0].ListaCaras[1].Rotar(-0.001f, 0f, 0f);
 
         // Rotación en Y (arriba/abajo)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Up))
-            objpala.Rotar(0f, 0.001f, 0f);
+            objpala.ListaPartes[0].ListaCaras[1].Rotar(0f, 0.001f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Down))
-            objpala.Rotar(0f, -0.001f, 0f); ;
+            objpala.ListaPartes[0].ListaCaras[1].Rotar(0f, -0.001f, 0f); ;
 
         // Rotación en Z (Q/E)
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Q))
-            objpala.Rotar(0f, 0f, 0.001f); ;
+            objpala.ListaPartes[0].ListaCaras[1].Rotar(0f, 0f, 0.001f); ;
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.E))
-            objpala.Rotar(0f, 0f, -0.001f);
+            objpala.ListaPartes[0].ListaCaras[1].Rotar(0f, 0f, -0.001f);
 
 
         // trasalacion
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.W))
-            objpala.Trasladar(0f, 0.001f, 0f);
+            objpala.ListaPartes[0].ListaCaras[1].Trasladar(0f, 0.001f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.S))
-            objpala.Trasladar(0f, -0.001f, 0f); ;
+            objpala.ListaPartes[0].ListaCaras[1].Trasladar(0f, -0.001f, 0f); ;
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.A))
-            objpala.Trasladar(0.001f, 0f, 0f);
+            objpala.ListaPartes[0].ListaCaras[1].Trasladar(0.001f, 0f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.D))
-            objpala.Trasladar(-0.001f, 0f, 0f);
+            objpala.ListaPartes[0].ListaCaras[1].Trasladar(-0.001f, 0f, 0f);
 
         // --- Escalado ---
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.T))
-            objpala.Escalar(0.001f, 0.001f, 0.001f);
+            objpala.ListaPartes[0].ListaCaras[1].Escalar(0.001f, 0.001f, 0.001f);
 
-        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Y)) 
-            objpala.Escalar(-0.001f, -0.001f, -0.001f);
+        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Y))
+            objpala.ListaPartes[0].ListaCaras[1].Escalar(-0.001f, -0.001f, -0.001f);
 
         // reflejo
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.R))
-            objpala.ReflejarX();
-       
+            objpala.ListaPartes[0].ListaCaras[1].ReflejarX();
 
 
 
-        if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.V))
+
+        /*if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.V))
             prueba.Rotar(0.001f,0f,0f);
 
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.C))
@@ -395,7 +404,7 @@ public class CubeWindow : GameWindow
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.G))
             objpala.Rotar(0.00f, 0.001f, 0f);
         if (input.IsKeyDown(OpenTK.Windowing.GraphicsLibraryFramework.Keys.Z))
-            objpala.ListaPartes[0].ListaCaras[1].Escalar(0.01f,0f,0f);
+            objpala.ListaPartes[0].ListaCaras[1].Escalar(0.01f,0f,0f);*/
 
     }
 
@@ -420,7 +429,7 @@ public class CubeWindow : GameWindow
 
 
         objpala.InitGL();
-        objpala.Draw(mvp);
+        objpala.Draw(Matrix4.Identity,(_view * _projection));
         /*objpala.InitGL();
         objpala.Draw(mvp);*/
         SwapBuffers();

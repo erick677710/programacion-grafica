@@ -18,51 +18,40 @@ public class Cara
     private int _shaderProgram;
     private int _mvpLocation;
     [JsonIgnore]
-    public Matrix4 ModeloDeseoso { get; set; } = Matrix4.Identity;
-    [JsonIgnore]
-    private Vector3 _rotacion = Vector3.Zero;
-    [JsonIgnore]
-    private Vector3 _posicion = Vector3.Zero;
-    [JsonIgnore]
-    private Vector3 _escala = new Vector3(1f, 1f, 1f);
+    public Matrix4 ModeloDeseoso { get; set; }
 
-    public Vector3 PosicionJson
-    {
-        get => _posicion;
-        set { _posicion = value; ActualizarModelo(); }
-    }
+    public float rotx { get; set; } 
+    public float roty { get; set; } 
+    public float rotz { get; set; } 
+    
+    public float escx { get; set; } 
+    public float escy { get; set; } 
+    public float escz { get; set; } 
 
-    public Vector3 RotacionJson
-    {
-        get => _rotacion;
-        set { _rotacion = value; ActualizarModelo(); }
-    }
-
-    public float EscalaJson { get; set; } = 1f;
-
-
+    
+    
+    
+    //para borrar
     public serializadorCara GetSerializable()
     {
         return new serializadorCara
         {
-            PosX = _posicion.X,
-            PosY = _posicion.Y,
-            PosZ = _posicion.Z,
-            RotX = _rotacion.X,
-            RotY = _rotacion.Y,
-            RotZ = _rotacion.Z,
-            Vertices = new List<float>(Vertices) // copia de la lista
+            /*PX = X,
+            PY = Y,
+            PZ = Z,
+            Vertices = new List<float>(Vertices) // copia de la lista*/
         };
     }
-
+    //para borrar
     public void LoadFromSerializable(serializadorCara data)
     {
-        _posicion = new Vector3(X,Y,Z);
-        _rotacion = new Vector3(data.RotX, data.RotY, data.RotZ);
+      /*  X = data.PZ;
+        Y = data.PY;
+        Z = data.PZ;
         Vertices = new List<float>(data.Vertices);
-        ActualizarModelo();
+        ActualizarModelo();*/
     }
-
+    //para borrar
     public void verticesPersonalizadosvoid(float x, float y, float z)
     {
         List<float> resultado = new List<float>();
@@ -113,31 +102,34 @@ public class Cara
         return resultado;
     }
     // Constructor vacío (para recibit el json)
+    //para modificar
     public Cara()
 
     {
-        X = _posicion.X;
-        Y = _posicion.Y;
-        Z = _posicion.Z;
+        
+        
         Vertices = new List<float>();
-        ModeloDeseoso *= Matrix4.CreateTranslation(_posicion.X, _posicion.Y, _posicion.Z);
-
-        _posicion = new Vector3(_posicion.X, _posicion.Y, _posicion.Z);
-        verticesPersonalizadosvoid(_posicion.X, _posicion.Y, _posicion.Z);
+        ModeloDeseoso = Matrix4.Identity * Matrix4.CreateTranslation(X, Y, Z);
+        escx = 1;
+        escy = 1;
+        escz = 1;
+        verticesPersonalizadosvoid(X, Y, Z);
 
     }
 
     // Constructor normal
     public Cara(float x, float y, float z, List<float> vertices)
     {
+        
         X = x;
         Y = y;
         Z = z;
+        escx = 1;
+        escy = 1;
+        escz = 1;
         Vertices = vertices;
-        ModeloDeseoso *= Matrix4.CreateTranslation(x,y,z);
-        
-        _posicion = new Vector3(x, y, z);
-        verticesPersonalizadosvoid(x, y, z);
+        ModeloDeseoso = Matrix4.Identity * Matrix4.CreateTranslation(X, Y, Z);
+        GetSerializable();
         InitGL();
     }
 
@@ -203,13 +195,10 @@ public class Cara
     }
 
     // Dibujar usando la matriz interna Transform  , Matrix4 projection
-    public void Draw(Matrix4 mvpE)
+    public void Draw(Matrix4 ModeloP, Matrix4 VixPro)
     {
         GL.UseProgram(_shaderProgram);
-
-        // MVP acumulado = transformación local de la cara * transformaciones superiores
-        Matrix4 mvp = ModeloDeseoso * mvpE;
-
+        Matrix4 mvp = ModeloP * ModeloDeseoso * VixPro;
         GL.UniformMatrix4(_mvpLocation, false, ref mvp);
 
         GL.BindVertexArray(_vao);
@@ -224,68 +213,78 @@ public class Cara
         GL.DeleteVertexArray(_vao);
         GL.DeleteProgram(_shaderProgram);
     }
-    private void ActualizarModelo()
+    public void ActualizarModelo()
     {
         // Centro de la cara (su propio origen local)
         Vector3 centro = new Vector3(X, Y, Z);
 
         // 1. Trasladar al origen local
         Matrix4 traslacionAlOrigen = Matrix4.CreateTranslation(-centro);
+        //Matrix4 traslacionAlOrigen = Matrix4.Identity;
 
-        // 2. Rotaciones
+    
+        // 2. Rotaciones o
         Matrix4 rotaciones =
-            Matrix4.CreateRotationX(_rotacion.X) *
-            Matrix4.CreateRotationY(_rotacion.Y) *
-            Matrix4.CreateRotationZ(_rotacion.Z);
+            Matrix4.CreateRotationX(rotx) *
+            Matrix4.CreateRotationY(roty) *
+            Matrix4.CreateRotationZ(rotz);
 
         // 3. Escala
-        Matrix4 escala = Matrix4.CreateScale(_escala);
+        Matrix4 escala = Matrix4.CreateScale(escx,escy,escz);
 
         // 4. Regresar al centro local
         Matrix4 traslacionDeVuelta = Matrix4.CreateTranslation(centro);
 
         // 5. Traslación global de la cara (su posición en la escena)
-        Matrix4 traslacionFinal = Matrix4.CreateTranslation(_posicion);
-
+        Matrix4 traslacionFinal = Matrix4.CreateTranslation(X, Y, Z) ;
+        traslacionFinal = traslacionFinal * Matrix4.CreateTranslation(X, Y, Z);
+        
+        //traslacionFinal = Matrix4.Identity;
         // Orden correcto: origen → rotación/escala → volver al centro → mover a posición global
-        ModeloDeseoso = traslacionAlOrigen * rotaciones * escala * traslacionDeVuelta * traslacionFinal;
+        ModeloDeseoso = escala * rotaciones * traslacionDeVuelta  ;
     }
 
     public void Rotar(float x, float y, float z)
     {
-        _rotacion += new Vector3(x, y, z);
+        //_rotacion += new Vector3(x, y, z);
+        rotx = rotx + x;
+        roty = roty + y;
+        rotz = rotz + z;
         ActualizarModelo();
     }
 
     public void Trasladar(float x, float y, float z)
     {
-        _posicion += new Vector3(x, y, z);
+        //_posicion += new Vector3(x, y, z);
+        X = X + x;
+        Y = Y + y;
+        Z = Z + z;
         ActualizarModelo();
     }
     public void Escalar(float x, float y, float z)
     {
         //_escala *= new Vector3(x, y, z); // escala no uniforme
-        _escala.X = _escala.X + x;
-        _escala.Y = _escala.Y + y;
-        _escala.Z = _escala.Z + z;
+        escx = escx + x;
+        escy = escy + y;
+        escz = escz + z;
 
         ActualizarModelo();
     }
     public void ReflejarX()
     {
-        _escala.X *= -1f;
+        escx *= -1f;
         ActualizarModelo();
     }
 
     public void ReflejarY()
     {
-        _escala.Y *= -1f;
+        escy *= -1f;
         ActualizarModelo();
     }
 
     public void ReflejarZ()
     {
-        _escala.Z *= -1f;
+        escz *= -1f;
         ActualizarModelo();
     }
 }

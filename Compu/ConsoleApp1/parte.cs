@@ -14,29 +14,33 @@ class Parte
     public List<Cara> ListaCaras { get; set; }
     [JsonIgnore]
     public Matrix4 ModeloDeseoso { get; set; } = Matrix4.Identity;
-    [JsonIgnore]
-    private Vector3 _rotacion = Vector3.Zero;
-    [JsonIgnore]
-    private Vector3 _posicion = Vector3.Zero;
-    [JsonIgnore]
-    private Vector3 _escala = new Vector3(1f, 1f, 1f);
-    // Constructor vacío (para recibit el json)
+    public float rotx { get; set; } = 0;
+    public float roty { get; set; } = 0;
+    public float rotz { get; set; } = 0;
+    public float posx { get; set; } = 0;
+    public float posy { get; set; } = 0;
+    public float posz { get; set; } = 0;
+    public float escx { get; set; } = 1;
+    public float escy { get; set; } = 1;
+    public float escz { get; set; } = 1;
     public serializadorParte GetSerializable()
     {
         var data = new serializadorParte
         {
-            PosX = _posicion.X,
-            PosY = _posicion.Y,
-            PosZ = _posicion.Z
+            PX = X,
+            PY = Y,
+            PZ = Z
         };
         foreach (var cara in ListaCaras)
-            data.ListaCaras.Add(cara.GetSerializable());
+           data.ListaCaras.Add(cara.GetSerializable());
         return data;
     }
 
     public void LoadFromSerializable(serializadorParte data)
     {
-        _posicion = new Vector3(data.PosX, data.PosY, data.PosZ);
+        X = data.PZ;
+        Y = data.PY;
+        Z = data.PZ;
         ListaCaras.Clear();
         foreach (var caraData in data.ListaCaras)
         {
@@ -47,19 +51,7 @@ class Parte
     }
 
 
-    public Vector3 PosicionJson
-    {
-        get => _posicion;
-        set { _posicion = value; ActualizarModelo(); }
-    }
-
-    public Vector3 RotacionJson
-    {
-        get => _rotacion;
-        set { _rotacion = value; ActualizarModelo(); }
-    }
-
-    public float EscalaJson { get; set; } = 1f;
+    
     public Parte()
     {
         ListaCaras = new List<Cara>();
@@ -92,11 +84,20 @@ class Parte
     }
 
     // Dibujar la parte (dibuja todas sus caras)
-    public void Draw(Matrix4 mvp)
+    public void Draw(Matrix4 ModeloP, Matrix4 VixPro)
     {
         foreach (Cara cara in ListaCaras)
         {
-            cara.Draw(ModeloDeseoso * mvp);
+            cara.Draw(ModeloDeseoso ,VixPro);
+        }
+    }
+
+
+    public void Actualizar()
+    {
+        foreach (Cara cara in ListaCaras)
+        {
+            cara.ActualizarModelo();
         }
     }
     private void ActualizarModelo()
@@ -104,53 +105,58 @@ class Parte
         Matrix4 traslacionOrigen = Matrix4.CreateTranslation(-X, -Y, -Z);
 
         Matrix4 rotaciones =
-            Matrix4.CreateRotationX(_rotacion.X) *
-            Matrix4.CreateRotationY(_rotacion.Y) *
-            Matrix4.CreateRotationZ(_rotacion.Z);
+            Matrix4.CreateRotationX(rotx) *
+            Matrix4.CreateRotationY(roty) *
+            Matrix4.CreateRotationZ(rotx);
 
-        Matrix4 traslacionFinal = Matrix4.CreateTranslation(_posicion);
+        Matrix4 traslacionFinal = Matrix4.CreateTranslation(X, Y, Z);
 
-        Matrix4 escala = Matrix4.CreateScale(_escala);
+        Matrix4 escala = Matrix4.CreateScale(escx, escy, escz);
 
         ModeloDeseoso = traslacionOrigen * rotaciones * escala * traslacionFinal;
     }
 
     public void Rotar(float x, float y, float z)
     {
-        _rotacion += new Vector3(x, y, z);
+        //_rotacion += new Vector3(x, y, z);
+        rotx = rotx + x;
+        roty = roty + y;
+        rotz = rotz + z;
         ActualizarModelo();
     }
 
     public void Trasladar(float x, float y, float z)
     {
-        _posicion += new Vector3(x, y, z);
+        //_posicion += new Vector3(x, y, z);
+        posx = posx + x;
+        posy = posy + y;
+        posz = posz + z;
         ActualizarModelo();
     }
-
     public void Escalar(float x, float y, float z)
     {
         //_escala *= new Vector3(x, y, z); // escala no uniforme
-        _escala.X = _escala.X + x;
-        _escala.Y = _escala.Y + y;
-        _escala.Z = _escala.Z + z;
+        escx = escx + x;
+        escy = escy + y;
+        escz = escz + z;
 
         ActualizarModelo();
     }
     public void ReflejarX()
     {
-        _escala.X *= -1f;
+        escx *= -1f;
         ActualizarModelo();
     }
 
     public void ReflejarY()
     {
-        _escala.Y *= -1f;
+        escy *= -1f;
         ActualizarModelo();
     }
 
     public void ReflejarZ()
     {
-        _escala.Z *= -1f;
+        escz *= -1f;
         ActualizarModelo();
     }
     public void Dispose()

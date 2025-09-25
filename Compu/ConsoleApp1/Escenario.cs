@@ -52,11 +52,11 @@ class Escenario
     }
 
     // Dibujar la Escenario (dibuja todas sus Objetos)
-    public void Draw(Matrix4 mvp)
+    public void Draw(Matrix4 ModeloP, Matrix4 VixPro)
     {
         foreach (Objeto Objeto in ListaObjetos)
         {
-            Objeto.Draw(ModeloDeseoso * mvp);
+            Objeto.Draw(ModeloDeseoso, VixPro);
         }
     }
 
